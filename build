@@ -1,12 +1,5 @@
 #!/usr/bin/env luajit
 
-local read_file = function(filename)
-  local f = assert(io.open(filename, "rb"))
-  local result = f:read("*a")
-  f:close()
-  return result
-end
-
 local fatal = function(msg, ...)
   msg = msg:format(...)
   print("ERROR:", msg)
@@ -27,12 +20,14 @@ end
 
 run("rm -rf .build; mkdir .build")
 
-run("cd deps/luajit; make LDFLAGS=-static")
+run("cd deps/luajit; make")
 run("mv deps/luajit/src/luajit lua")
 
 run("gcc -static init.c -o init")
 
-run([[(find core; echo 'init\nlua\n') | cpio -H newc -o > .build/init.cpio]])
+run [[
+  (find core; echo 'init\nlua\nld-linux-x86-64.so.2\nlibc.so.6\nlibm.so.6\nlibgcc_s.so.1') | cpio -H newc -o > .build/init.cpio
+]]
 run("rm init lua")
 
 run("rm -f deps/linux/.config; cp linux-config deps/linux/.config")
