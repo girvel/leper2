@@ -1,0 +1,6 @@
+[submodule "deps/luajit"]
+	path = deps/luajit
+	url = https://luajit.org/git/luajit.git
+[submodule "deps/linux"]
+	path = deps/linux
+	url = https://github.com/torvalds/linux

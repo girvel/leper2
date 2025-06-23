@@ -1,0 +1,41 @@
+#!/usr/bin/env luajit
+
+local read_file = function(filename)
+  local f = assert(io.open(filename, "rb"))
+  local result = f:read("*a")
+  f:close()
+  return result
+end
+
+local fatal = function(msg, ...)
+  msg = msg:format(...)
+  print("ERROR:", msg)
+  os.exit(1)
+end
+
+--- @param cmd string
+--- @param ... any
+local run = function(cmd, ...)
+  cmd = cmd:format(...)
+  print()
+  print(cmd)
+  local exit_code = os.execute(cmd)
+  if exit_code ~= 0 then
+    fatal("exited with code %s", exit_code)
+  end
+end
+
+run("rm -rf .build; mkdir .build")
+
+run("cd deps/luajit; make LDFLAGS=-static")
+run("mv deps/luajit/src/luajit .build/lua")
+
+run("gcc -static shell.c -o .build/init")
+
+run("cd .build; cat ../files | cpio -H newc -o > init.cpio")
+
+run("rm -f deps/linux/.config; cp linux-config deps/linux/.config")
+run('cd deps/linux; make isoimage FDARGS="initrd=/init.cpio" FDINITRD=../../.build/init.cpio')
+run("mv deps/linux/arch/x86/boot/image.iso .build/image.iso")
+
+run("qemu-system-x86_64 -cdrom .build/image.iso")
