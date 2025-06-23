@@ -30,8 +30,9 @@ run("rm -rf .build; mkdir .build")
 run("cd deps/luajit; make LDFLAGS=-static")
 run("mv deps/luajit/src/luajit .build/lua")
 
-run("gcc -static shell.c -o .build/init")
+run("gcc -static init.c -o .build/init")
 
+run("cp init.lua .build/")
 run("cd .build; cat ../files | cpio -H newc -o > init.cpio")
 
 run("rm -f deps/linux/.config; cp linux-config deps/linux/.config")
