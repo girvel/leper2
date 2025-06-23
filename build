@@ -28,12 +28,12 @@ end
 run("rm -rf .build; mkdir .build")
 
 run("cd deps/luajit; make LDFLAGS=-static")
-run("mv deps/luajit/src/luajit .build/lua")
+run("mv deps/luajit/src/luajit lua")
 
-run("gcc -static init.c -o .build/init")
+run("gcc -static init.c -o init")
 
-run("cp init.lua .build/")
-run("cd .build; cat ../files | cpio -H newc -o > init.cpio")
+run([[(find core; echo 'init\nlua\n') | cpio -H newc -o > .build/init.cpio]])
+run("rm init lua")
 
 run("rm -f deps/linux/.config; cp linux-config deps/linux/.config")
 run('cd deps/linux; make isoimage FDARGS="initrd=/init.cpio" FDINITRD=../../.build/init.cpio')
