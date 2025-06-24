@@ -5,27 +5,39 @@ print("Welcome to Leper Linux")
 
 local ffi = require("ffi")
 ffi.cdef [[
-  typedef struct DIR DIR;
-  struct DIR *opendir(const char *name);
-  struct dirent *readdir(DIR *dirp);
-  int closedir(DIR *dirp);
-  char *strerror(int errno);
+  typedef struct {
+    long d_ino;
+    long d_off;
+    unsigned short d_reclen;
+    unsigned char d_type;
+    char d_name[256];
+  } dirent;
+
+  int scandir(
+    const char *dirp,
+    dirent ***namelist,
+    int (*filter)(const dirent *),
+    int (*compar)(const dirent **, const dirent **)
+  );
+
+  int alphasort(const dirent **a, const dirent **b);
+  void free(void *ptr);
 ]]
 
--- ffi.C.syscall(257, ffi.cast("int", -100), ".", 0, 0)
+-- TODO free
 
-local stream = assert(ffi.C.opendir("."))
-print(123)
-local content = ffi.C.readdir(stream)
-while content ~= nil do
-  print(content)
-  print(ffi.string(content.d_name))
-  content = ffi.C.readdir(stream)
+print("Functions loaded")
+
+local namelist = ffi.new("dirent **[1]")
+local count = ffi.C.scandir("/", namelist, nil, ffi.C.alphasort)
+print(count)
+
+for i = 0, count - 1 do
+  local entry = namelist[0][i]
+  print(ffi.string(entry.d_name))
+  ffi.C.free(entry)
 end
-ffi.C.closedir(stream)
-
--- print(fs.read_file("/core/init.lua"))
--- print(fs.read_file("/lib/x86_64-linux-gnu/libc.so.6"))
+ffi.C.free(namelist[0])
 
 while true do
   _ = io.stdin:read()
