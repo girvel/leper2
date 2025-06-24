@@ -21,14 +21,15 @@ end
 run("rm -rf .build; mkdir .build")
 
 run("cd deps/luajit; make")
-run("mv deps/luajit/src/luajit lua")
+run("mv deps/luajit/src/luajit initramfs/lua")
 
-run("gcc -static init.c -o init")
+run("gcc -static init.c -o initramfs/init")
 
 run [[
-  (find core; echo 'init\nlua\nld-linux-x86-64.so.2\nlibc.so.6\nlibm.so.6\nlibgcc_s.so.1') | cpio -H newc -o > .build/init.cpio
+  cd initramfs; \
+  (find .; echo 'init\nlua') | cpio -H newc -o > ../.build/init.cpio; \
+  rm init lua
 ]]
-run("rm init lua")
 
 run("rm -f deps/linux/.config; cp linux-config deps/linux/.config")
 run('cd deps/linux; make isoimage FDARGS="initrd=/init.cpio" FDINITRD=../../.build/init.cpio')
