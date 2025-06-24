@@ -23,7 +23,7 @@ run("rm -rf .build; mkdir .build")
 run("cd deps/luajit; make")
 run("mv deps/luajit/src/luajit initramfs/lua")
 
-run("gcc -static init.c -o initramfs/init")
+run("gcc init.c -o initramfs/init")
 
 run [[
   cd initramfs; \
