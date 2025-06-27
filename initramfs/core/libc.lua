@@ -10,15 +10,11 @@ return {
         char d_name[256];
       } dirent;
 
-      int scandir(
-        const char *dirp,
-        dirent ***namelist,
-        int (*filter)(const dirent *),
-        int (*compar)(const dirent **, const dirent **)
-      );
+      void *opendir(const char *name);
+      dirent *readdir(void *dirp);
+      int *closedir(void *dirp);
 
-      int alphasort(const dirent **a, const dirent **b);
-      void free(void *ptr);
+      // void free(void *ptr);
     ]]
   end
 }

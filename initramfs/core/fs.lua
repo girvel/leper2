@@ -2,8 +2,10 @@ local ffi = require("ffi")
 
 local fs = {}
 
-fs.read_file = function(filename)
-  local f = assert(io.open(filename, "rb"))
+--- @param path string
+--- @return string
+fs.read_file = function(path)
+  local f = assert(io.open(path, "rb"))
   local result = f:read("*a")
   f:close()
   return result
