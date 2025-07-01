@@ -12,9 +12,7 @@ return {
 
       void *opendir(const char *name);
       dirent *readdir(void *dirp);
-      int *closedir(void *dirp);
-
-      // void free(void *ptr);
+      int closedir(void *dirp);
     ]]
   end
 }
